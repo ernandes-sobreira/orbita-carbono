@@ -187,13 +187,35 @@ footer{color:#d4f5e8;text-shadow:0 3px 9px #001a14;margin-top:10px}
 @media(max-width:600px){body{padding:10px 8px 28px}.wrap{width:100%}.hero{grid-template-columns:110px 1fr;gap:0;min-height:125px}.atom{transform:scale(.47);transform-origin:left center}.hero-copy{margin-left:-44px}h1{font-size:2.35rem;letter-spacing:-1px}.sub{font-size:.77rem}.intro{gap:12px}.instruction{padding:15px}.levels{grid-template-columns:repeat(2,1fr)}.pill{padding:8px}.level-icon{font-size:1.2rem}.card{padding:16px;border-radius:20px}.hud{grid-template-columns:repeat(2,1fr);gap:8px}.chip{min-height:55px}.opts{grid-template-columns:1fr}.ocean-scene{opacity:.35}.rank h3{font-size:1.3rem}}
 @media(prefers-reduced-motion:reduce){.orbit{animation:none}}
 
+
+/* Carbono (Z=6): camada K = 2 elétrons; camada L = 4 elétrons.
+   Animação didática de Bohr; órbitas circulares não são trajetórias quânticas literais. */
+.atom .orbit{display:none}
+.atom .electron-shell{position:absolute;left:50%;top:50%;border:2px solid rgba(166,255,238,.92);border-radius:50%;box-shadow:0 0 12px #41ffd86d,inset 0 0 9px #41ffd830;transform-origin:center;animation:carbon-shell-spin 9s linear infinite}
+.atom .shell-inner{width:126px;height:126px;margin:-63px 0 0 -63px;animation-duration:6s}
+.atom .shell-outer{width:238px;height:238px;margin:-119px 0 0 -119px;animation-duration:12s;animation-direction:reverse}
+.atom .electron{position:absolute;display:block;width:17px;height:17px;border-radius:50%;background:radial-gradient(circle at 35% 25%,#fff 0%,#72efff 42%,#00a6d8 85%);box-shadow:0 0 13px #6afff1,0 0 5px #fff;transform:translate(-50%,-50%)}
+.atom .shell-inner .electron:nth-child(1){top:0;left:50%}
+.atom .shell-inner .electron:nth-child(2){top:100%;left:50%}
+.atom .shell-outer .electron:nth-child(1){top:0;left:50%}
+.atom .shell-outer .electron:nth-child(2){top:50%;left:100%}
+.atom .shell-outer .electron:nth-child(3){top:100%;left:50%}
+.atom .shell-outer .electron:nth-child(4){top:50%;left:0}
+.atom .nucleus{width:64px;height:64px;font-size:2.8rem}
+@keyframes carbon-shell-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.atom .electron-shell{animation:none}}
+
 </style>
 </head>
 <body>
 <div class="ocean-scene" aria-hidden="true"><div class="planet"></div><div class="reef">≈</div></div>
 <div class="wrap">
   <header class="hero">
-    <div class="atom" role="img" aria-label="Átomo de carbono ilustrado com elétrons orbitando"><span class="orbit"><i></i></span><span class="orbit two"><i></i></span><span class="orbit three"><i></i></span><span class="nucleus">C</span></div>
+    <div class="atom" role="img" aria-label="Representação didática do carbono neutro: 6 elétrons distribuídos em duas camadas, 2 na primeira camada e 4 na camada de valência">
+      <span class="electron-shell shell-inner" aria-hidden="true"><i class="electron"></i><i class="electron"></i></span>
+      <span class="electron-shell shell-outer" aria-hidden="true"><i class="electron"></i><i class="electron"></i><i class="electron"></i><i class="electron"></i></span>
+      <span class="nucleus">C</span>
+    </div>
     <div class="hero-copy"><h1><span class="small-title">Órbita do</span>Carbono</h1><div class="sub">Um quiz sobre o ciclo do carbono — do ar às profundezas do oceano</div></div>
   </header>
   <section class="intro"><div class="instruction"><h2>Como jogar</h2><ul><li>Responda às perguntas do quiz</li><li>Cada acerto vale pontos</li><li>O ranking considera acertos e tempo</li></ul><p class="rule">Mais pontos em menos tempo = melhor posição</p></div>
