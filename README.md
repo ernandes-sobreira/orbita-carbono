@@ -45,7 +45,7 @@ HTML5, CSS3, JavaScript e Firebase Cloud Firestore. Publicação por GitHub Page
 
 ## Idealização
 
-**ERNANDES SOBREIRA · CLEVERSON VIANA · BEATRIZ BUHLER**
+**ERNANDES SOBREIRA · CLEVERSON VIANA · BEATRIZ BÜHLER**
 
 ## Situação
 
