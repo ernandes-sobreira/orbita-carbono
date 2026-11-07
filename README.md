@@ -43,13 +43,9 @@ Abra `index.html` em um navegador moderno. O quiz funciona localmente; as funcio
 
 HTML5, CSS3, JavaScript e Firebase Cloud Firestore. Publicação por GitHub Pages.
 
-## Autoria e colaboração
+## Idealização
 
-**Concepção e idealização:** Ernandes Sobreira Oliveira Junior.
-
-**Desenvolvimento colaborativo:** Ernandes Sobreira Oliveira Junior e Cleverson Ricardo Soares Viana.
-
-A definição formal das contribuições e dos percentuais de autoria deve ser registrada na documentação institucional correspondente.
+**ERNANDES SOBREIRA · CLEVERSON VIANA · BEATRIZ BUHLER**
 
 ## Situação
 
