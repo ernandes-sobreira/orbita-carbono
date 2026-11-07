@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Órbita do Carbono — Quiz do Ciclo do Carbono</title>
+<style>
+:root{
+  --bg1:#1f2a24;
+  --bg2:#0f1a16;
+  --card:#182420;
+  --card2:#1e2d27;
+  --ink:#eaf5ef;
+  --muted:#9fb5ab;
+  --accent:#2ee6a0;
+  --accent-dark:#12b981;
+  --ok:#38e08a;
+  --bad:#ff6b6b;
+  --line:#2a3c34;
+  --gold:#ffd15c;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:var(--ink);
+  background:linear-gradient(160deg,var(--bg1) 0%,var(--bg2) 100%);
+  background-attachment:fixed;
+  min-height:100vh;
+  padding:18px 12px 40px;
+  line-height:1.5;
+}
+.wrap{width:min(760px,95vw);margin:0 auto}
+header{text-align:center;margin-bottom:14px}
+h1{
+  font-size:clamp(1.7rem,5vw,2.7rem);
+  letter-spacing:-0.5px;
+  background:linear-gradient(90deg,var(--accent),#8ef7cf);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  font-weight:800;
+}
+.sub{color:var(--muted);font-size:.95rem;margin-top:4px}
+.levels{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:16px 0}
+.pill{
+  border:1px solid var(--line);
+  background:var(--card);
+  color:var(--ink);
+  padding:9px 16px;border-radius:999px;
+  font-size:.92rem;font-weight:600;cursor:pointer;
+  transition:transform .2s ease,background .25s ease,box-shadow .25s ease;
+}
+.pill:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.3)}
+.pill.active{background:linear-gradient(90deg,var(--accent-dark),var(--accent));color:#04150e;border-color:transparent;box-shadow:0 6px 18px rgba(46,230,160,.35)}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:18px 18px 20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.28);
+  margin-bottom:16px;
+}
+.howto{font-size:.9rem;color:var(--muted);text-align:center;margin-bottom:8px}
+.hud{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px}
+.chip{
+  background:var(--card2);border:1px solid var(--line);
+  border-radius:10px;padding:7px 12px;font-size:.86rem;font-weight:600;
+  color:var(--ink);white-space:nowrap;
+}
+.chip b{color:var(--accent)}
+.progress{height:9px;background:var(--card2);border-radius:999px;overflow:hidden;margin-bottom:16px;border:1px solid var(--line)}
+.progress>span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent-dark),var(--accent));transition:width .4s ease}
+.qnum{color:var(--accent);font-weight:700;font-size:.82rem;letter-spacing:.5px;text-transform:uppercase}
+.question{font-size:clamp(1.1rem,3.2vw,1.4rem);font-weight:700;margin:6px 0 16px}
+.opts{display:grid;gap:10px}
+.opt{
+  text-align:left;background:var(--card2);
+  border:1.5px solid var(--line);
+  color:var(--ink);
+  border-radius:12px;padding:14px 16px;font-size:1rem;
+  cursor:pointer;transition:transform .2s ease,border-color .2s ease,background .2s ease;
+  display:flex;align-items:center;gap:10px;font-family:inherit;
+}
+.opt .mk{width:22px;height:22px;flex:0 0 22px;border-radius:50%;border:2px solid var(--muted);display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800}
+.opt:hover:not(:disabled){transform:translateY(-2px);border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.opt.correct{border-color:var(--ok);background:rgba(56,224,138,.14)}
+.opt.correct .mk{border-color:var(--ok);background:var(--ok);color:#04150e}
+.opt.wrong{border-color:var(--bad);background:rgba(255,107,107,.13)}
+.opt.wrong .mk{border-color:var(--bad);background:var(--bad);color:#2a0000}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.04)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.pop{animation:pop .35s ease}
+.shake{animation:shake .4s ease}
+.feedback{margin-top:14px;border-radius:12px;padding:13px 15px;font-size:.95rem;display:none;border:1px solid var(--line);background:var(--card2)}
+.feedback.show{display:block}
+.feedback.ok{border-color:var(--ok);background:rgba(56,224,138,.1)}
+.feedback.no{border-color:var(--bad);background:rgba(255,107,107,.1)}
+.feedback .tag{font-weight:800;margin-right:6px}
+.feedback.ok .tag{color:var(--ok)}
+.feedback.no .tag{color:var(--bad)}
+.row{display:flex;justify-content:flex-end;margin-top:14px}
+.btn{
+  background:linear-gradient(90deg,var(--accent-dark),var(--accent));color:#04150e;
+  border:none;border-radius:12px;padding:12px 22px;font-size:1rem;font-weight:800;
+  cursor:pointer;font-family:inherit;transition:transform .2s ease,box-shadow .2s ease;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(46,230,160,.35)}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.hidden{display:none!important}
+/* final */
+.final{text-align:center}
+.final .party{font-size:3rem;animation:pop .5s ease}
+.final h2{font-size:1.7rem;margin:6px 0}
+.scoreline{font-size:1.15rem;margin:10px 0;color:var(--ink)}
+.scoreline b{color:var(--accent);font-size:1.4rem}
+.medal{font-size:1rem;color:var(--gold);font-weight:700;margin-bottom:8px}
+.save{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:14px 0}
+.save input{background:var(--card2);border:1.5px solid var(--line);color:var(--ink);border-radius:10px;padding:11px 14px;font-size:1rem;font-family:inherit;width:min(240px,70vw)}
+.save input:focus{outline:none;border-color:var(--accent)}
+/* ranking */
+.rank h3{font-size:1.05rem;margin-bottom:4px}
+.rank .lvl{color:var(--muted);font-size:.82rem;margin-bottom:10px}
+.rank table{width:100%;border-collapse:collapse;font-size:.9rem}
+.rank th,.rank td{padding:8px 6px;text-align:left;border-bottom:1px solid var(--line)}
+.rank th{color:var(--muted);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.4px}
+.rank td.pos{width:34px;font-weight:800;color:var(--accent)}
+.rank td.sc{text-align:right;font-weight:700;white-space:nowrap}
+.rank .me{background:rgba(46,230,160,.1)}
+.note{color:var(--muted);font-size:.82rem;text-align:center;margin-top:8px}
+footer{text-align:center;margin-top:22px;color:var(--muted);font-size:.85rem;line-height:1.7}
+footer .id{color:var(--accent);font-weight:800;font-size:.98rem}
+
+/* NOVA INTERFACE 2026 */
+:root{--bg1:#031b18;--bg2:#032e30;--card:rgba(0,45,40,.88);--card2:rgba(2,65,63,.85);--ink:#f4fff9;--muted:#c1d9d0;--accent:#74ffc0;--accent-dark:#12b989;--line:rgba(124,255,218,.33)}
+body{background:#041e1c;padding:16px 14px 38px;overflow-x:hidden;isolation:isolate}
+body:before{content:"";position:fixed;inset:0;z-index:-3;background:linear-gradient(90deg,rgba(0,18,15,.2),rgba(0,24,24,.76) 40%,rgba(0,29,35,.5)),url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1800&q=85') center/cover}
+body:after{content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(ellipse at 85% 20%,rgba(0,234,241,.25),transparent 45%),linear-gradient(90deg,transparent 0%,rgba(0,22,25,.52) 26%,rgba(0,27,29,.7) 76%,rgba(0,103,123,.23))}
+.ocean-scene{pointer-events:none;position:fixed;z-index:-1;right:-16vw;top:0;width:54vw;height:110vh;opacity:.6;background:radial-gradient(ellipse at 80% 60%,#008ca34d,transparent 65%)}
+.planet{position:absolute;top:8%;right:-20%;width:110%;aspect-ratio:1;border-radius:50%;border-top:9px solid #65f3f0a9;transform:rotate(-18deg);box-shadow:0 -20px 70px #10d8f755,inset 0 70px 90px #159bc13d;background:linear-gradient(160deg,transparent 25%,#073e56aa 80%)}
+.reef{position:absolute;right:10%;bottom:4%;font-size:12rem;color:#4efbf7;opacity:.22}
+.wrap{width:min(1220px,96vw)}
+header{margin:0}
+.hero{min-height:190px;display:grid;grid-template-columns:330px minmax(0,1fr);gap:18px;align-items:center;max-width:990px;margin:0 auto 10px}
+.hero-copy{text-align:left}
+h1{font-weight:900;font-size:clamp(2.8rem,5.3vw,5rem);line-height:1.04;letter-spacing:-2px;background:linear-gradient(120deg,#faffff,#6affb4 74%);-webkit-background-clip:text;background-clip:text;text-shadow:0 12px 42px #29ddad33}
+h1 .small-title{display:block;font-size:.72em;-webkit-text-fill-color:#fff}
+.sub{font-size:clamp(.9rem,1.3vw,1.1rem);color:#e8fff6;margin-top:10px}
+.atom{height:190px;width:290px;display:grid;place-items:center;position:relative;filter:drop-shadow(0 0 18px #36ffd181)}
+.orbit{position:absolute;width:230px;height:95px;border:2.5px solid #a6ffee;border-radius:50%;box-shadow:0 0 13px #41ffd8;animation:orbit1 5s linear infinite}
+.orbit.two{animation:orbit2 6s linear infinite;transform:rotate(60deg)}
+.orbit.three{animation:orbit3 7s linear infinite;transform:rotate(120deg)}
+.orbit i{position:absolute;left:-8px;top:42%;width:17px;height:17px;border-radius:50%;background:radial-gradient(circle at 35% 30%,white,#60eaff 50%,#028fbc);box-shadow:0 0 16px #66ffff}
+.nucleus{display:grid;place-items:center;z-index:1;width:112px;height:112px;border-radius:50%;background:radial-gradient(circle at 34% 20%,#a2c3c9,#476c76 35%,#142e39 72%,#081c26);border:2px solid #81d0c5;box-shadow:inset -15px -15px 25px #001820,0 0 25px #4fffd566;color:white;font-size:4.2rem;font-weight:900}
+@keyframes orbit1{to{transform:rotate(360deg)}}@keyframes orbit2{to{transform:rotate(420deg)}}@keyframes orbit3{to{transform:rotate(480deg)}}
+.intro{display:grid;grid-template-columns:minmax(270px,420px) minmax(450px,1fr);gap:26px;align-items:center;margin:0 0 16px}
+.instruction{border:1px solid #a0ffd77a;border-radius:22px;background:linear-gradient(135deg,#063f36ed,#01342ee6);padding:17px 24px;box-shadow:0 12px 35px #001b1b9c}
+.instruction h2,.select-title{font-size:1.3rem;font-weight:800;color:#fff;margin:0 0 9px}
+.instruction ul{padding-left:20px;font-size:.94rem;line-height:1.55}
+.instruction .rule{border-top:1px solid #77ffc052;margin-top:8px;padding-top:7px;font-style:italic;color:#94ffcf;font-size:.86rem}
+.levels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:7px 0 0}
+.pill{border:1px solid #43d7d8;border-radius:16px;white-space:normal;padding:11px 5px;background:linear-gradient(180deg,#0b7378db,#043b46eb);box-shadow:inset 0 0 12px #33e9c52b;color:white;font-size:.9rem}
+.pill.active{background:linear-gradient(135deg,#257e50,#085b45);color:white;border-color:#9effb8;box-shadow:0 0 16px #39faae55}
+.level-icon{font-size:1.65rem;color:#9bffb3;display:block}
+.card{border-radius:26px;border:1px solid #7dffd099;background:linear-gradient(130deg,#033b37ec,#062c32ee);padding:20px 36px;box-shadow:0 15px 40px #00191999;backdrop-filter:blur(10px)}
+.howto{display:none}
+.hud{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
+.chip{background:linear-gradient(150deg,#086757aa,#063c42bd);border:1px solid #79f8d377;border-radius:15px;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:500}
+.chip b{display:inline-block;color:#fff;font-size:1.5rem;line-height:1.1}
+.metric{font-size:.9rem;color:#ddfff2}
+.metric-icon{color:#9fffc1;font-size:1.3rem;margin-right:6px}
+.progress{height:12px;background:#8fd7cc38;border:1px solid #aff9e04a;margin:12px 0 10px}
+.progress>span{background:linear-gradient(90deg,#b4ffc1,#6afa91);box-shadow:0 0 12px #60ffc4}
+.qnum{font-size:.94rem;text-transform:none;letter-spacing:0}
+.question{color:#fff;font-size:clamp(1.18rem,2vw,1.55rem);margin:10px 0 16px}
+.question:before{content:'?';display:inline-grid;place-items:center;width:31px;height:31px;border:2px solid #9bffc7;border-radius:50%;color:#a2ffc4;margin-right:12px}
+.opts{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px}
+.opt{min-height:56px;justify-content:center;text-align:center;background:linear-gradient(180deg,#0e666393,#033439d9);border:1px solid #44e8d5bb;border-radius:16px;font-size:1.05rem;font-weight:650}
+.opt .mk{display:none}
+.opt:hover:not(:disabled){box-shadow:0 0 16px #4cf5c855;background:#126e61}
+.rank{display:grid;grid-template-columns:minmax(220px,1fr) 2fr;gap:8px 22px;align-items:start}
+.rank h3{font-size:1.5rem;margin:0}
+.rank .lvl{grid-column:1;color:#b8e6d6}
+.rank #rankBody{grid-column:2;grid-row:1/span 2}
+.rank .note{text-align:left}
+footer{color:#d4f5e8;text-shadow:0 3px 9px #001a14;margin-top:10px}
+@media(max-width:900px){.intro{grid-template-columns:1fr}.levels{grid-template-columns:repeat(4,1fr)}.rank{display:block}.rank #rankBody{margin-top:14px}}
+@media(max-width:600px){body{padding:10px 8px 28px}.wrap{width:100%}.hero{grid-template-columns:110px 1fr;gap:0;min-height:125px}.atom{transform:scale(.47);transform-origin:left center}.hero-copy{margin-left:-44px}h1{font-size:2.35rem;letter-spacing:-1px}.sub{font-size:.77rem}.intro{gap:12px}.instruction{padding:15px}.levels{grid-template-columns:repeat(2,1fr)}.pill{padding:8px}.level-icon{font-size:1.2rem}.card{padding:16px;border-radius:20px}.hud{grid-template-columns:repeat(2,1fr);gap:8px}.chip{min-height:55px}.opts{grid-template-columns:1fr}.ocean-scene{opacity:.35}.rank h3{font-size:1.3rem}}
+@media(prefers-reduced-motion:reduce){.orbit{animation:none}}
+
+</style>
+</head>
+<body>
+<div class="ocean-scene" aria-hidden="true"><div class="planet"></div><div class="reef">≈</div></div>
+<div class="wrap">
+  <header class="hero">
+    <div class="atom" role="img" aria-label="Átomo de carbono ilustrado com elétrons orbitando"><span class="orbit"><i></i></span><span class="orbit two"><i></i></span><span class="orbit three"><i></i></span><span class="nucleus">C</span></div>
+    <div class="hero-copy"><h1><span class="small-title">Órbita do</span>Carbono</h1><div class="sub">Um quiz sobre o ciclo do carbono — do ar às profundezas do oceano</div></div>
+  </header>
+  <section class="intro"><div class="instruction"><h2>Como jogar</h2><ul><li>Responda às perguntas do quiz</li><li>Cada acerto vale pontos</li><li>O ranking considera acertos e tempo</li></ul><p class="rule">Mais pontos em menos tempo = melhor posição</p></div>
+   <div class="level-area"><h2 class="select-title">Escolha a dificuldade</h2><div class="levels" id="levels">
+     <button class="pill active" data-lvl="basico"><span class="level-icon">♧</span>Básico</button>
+     <button class="pill" data-lvl="intermediario"><span class="level-icon">▱</span>Intermediário</button>
+     <button class="pill" data-lvl="dificil"><span class="level-icon">⚗</span>Difícil</button>
+     <button class="pill" data-lvl="carbonauta"><span class="level-icon">✧</span>Carbonauta</button>
+   </div></div></section>
+  <!-- JOGO -->
+  <div class="card" id="gameCard">
+    <div class="howto">Escolha a alternativa correta. Cada acerto vale pontos; mantenha a sequência! ⚡ O tempo é o critério de desempate.</div>
+    <div class="hud" id="hud">
+      <span class="chip"><span class="metric"><span class="metric-icon">✓</span>Acertos</span><span><b id="hAcertos">0</b>/<span id="hTotal">0</span></span></span>
+      <span class="chip"><span class="metric"><span class="metric-icon">☆</span>Pontos</span><b id="hPontos">0</b></span>
+      <span class="chip"><span class="metric"><span class="metric-icon">♨</span>Sequência</span><b id="hStreak">0</b></span>
+      <span class="chip"><span class="metric"><span class="metric-icon">◷</span>Tempo</span><b id="hTempo">00:00</b></span>
+    </div>
+    <div class="progress"><span id="bar"></span></div>
+    <div class="qnum" id="qnum">Pergunta 1</div>
+    <div class="question" id="question">—</div>
+    <div class="opts" id="opts"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="row"><button class="btn hidden" id="nextBtn">Próxima →</button></div>
+  </div>
+
+  <!-- FINAL -->
+  <div class="card final hidden" id="finalCard">
+    <div class="party">🎉</div>
+    <h2>Missão concluída!</h2>
+    <div class="medal" id="medal"></div>
+    <div class="scoreline">Você fez <b id="fScore">0</b> pontos</div>
+    <div class="scoreline" style="font-size:1rem;color:var(--muted)">
+      <span id="fResumo"></span>
+    </div>
+    <div class="save">
+      <input id="nameInput" maxlength="20" placeholder="Seu nome (até 20)">
+      <button class="btn" id="saveBtn">Salvar no ranking</button>
+    </div>
+    <div class="row" style="justify-content:center">
+      <button class="btn ghost" id="againBtn">Jogar de novo ↺</button>
+    </div>
+    <div class="note" id="saveNote"></div>
+  </div>
+
+  <!-- RANKING -->
+  <div class="card rank" id="rankCard">
+    <h3>♕ Ranking Global</h3>
+    <div class="lvl">Mais pontos primeiro; menor tempo desempata.<br>Nível: <span id="rankLvl">Básico</span></div>
+    <div id="rankBody"><div class="note">Carregando ranking…</div></div>
+  </div>
+
+  <footer>
+    <div class="id">— Idealizado por Ernandes Sobreira —</div>
+    <div>Tema: Ciclo do carbono · Gênero: Quiz · app ambiental do dia (2026-08-07)</div>
+  </footer>
+</div>
+
+<script>
+/* ================= DADOS DO QUIZ ================= */
+const DATA = {
+  basico: [
+    {q:"Qual gás é o principal transportador de carbono na atmosfera?",
+     o:[["Gás carbônico",1],["Gás oxigênio",0],["Gás nitrogênio",0],["Gás hidrogênio",0]],
+     fb:"O gás carbônico (CO₂) é a forma como o carbono circula pelo ar e entra nas plantas."},
+    {q:"Que processo das plantas retira carbono do ar?",
+     o:[["Fotossíntese",1],["Respiração",0],["Transpiração",0],["Digestão",0]],
+     fb:"Na fotossíntese as plantas absorvem CO₂ e usam o carbono para crescer."},
+    {q:"Quando queimamos combustíveis, o carbono vai para onde?",
+     o:[["Para a atmosfera",1],["Para o solo",0],["Para as rochas",0],["Para os ossos",0]],
+     fb:"A queima libera o carbono guardado no combustível na forma de CO₂ no ar."},
+    {q:"Qual atividade humana MAIS aumenta o CO₂ do ar?",
+     o:[["Queimar combustíveis",1],["Plantar árvores",0],["Andar de bicicleta",0],["Separar o lixo",0]],
+     fb:"Queimar carvão, petróleo e gás libera enormes quantidades de CO₂."},
+    {q:"O que os animais soltam ao respirar?",
+     o:[["Gás carbônico",1],["Gás oxigênio",0],["Vapor de água",0],["Gás nitrogênio",0]],
+     fb:"Na respiração, os seres vivos liberam CO₂ de volta para o ar."},
+    {q:"Onde fica guardado muito carbono por milhões de anos?",
+     o:[["No petróleo",1],["Nas nuvens",0],["No vento",0],["Na chuva",0]],
+     fb:"Petróleo, carvão e gás são carbono de seres vivos antigos, guardado no subsolo."},
+    {q:"As florestas ajudam o clima porque elas...",
+     o:[["Absorvem carbono",1],["Produzem petróleo",0],["Aquecem o ar",0],["Soltam fumaça",0]],
+     fb:"As árvores retiram CO₂ do ar e o guardam na madeira e no solo."},
+    {q:"O ciclo do carbono é um processo que...",
+     o:[["Se repete sempre",1],["Nunca se repete",0],["Ocorre uma vez",0],["Já foi parado",0]],
+     fb:"O carbono circula continuamente entre ar, seres vivos, solo e oceanos."}
+  ],
+  intermediario: [
+    {q:"Qual reservatório contém a MAIOR parte do carbono do planeta?",
+     o:[["Os oceanos",1],["A atmosfera",0],["As florestas",0],["Os animais",0]],
+     fb:"Os oceanos guardam cerca de 38.000 GtC, muito mais que o ar ou a vegetação."},
+    {q:"O processo que devolve CO₂ ao ar dentro das células é a...",
+     o:[["Respiração celular",1],["Fotossíntese ativa",0],["Fixação mineral",0],["Sedimentação lenta",0]],
+     fb:"A respiração celular quebra moléculas orgânicas e libera CO₂."},
+    {q:"A decomposição de matéria orgânica libera carbono como...",
+     o:[["CO₂ e metano",1],["Ozônio e argônio",0],["Enxofre e ferro",0],["Cloro e sódio",0]],
+     fb:"Micro-organismos liberam CO₂ e, sem oxigênio, também metano (CH₄)."},
+    {q:"Qual fenômeno acidifica os oceanos?",
+     o:[["Absorção de CO₂",1],["Emissão de oxigênio",0],["Excesso de sal",0],["Queda das marés",0]],
+     fb:"O CO₂ dissolvido forma ácido carbônico e reduz o pH do mar."},
+    {q:"A concentração de CO₂ na atmosfera em 2025 ultrapassou...",
+     o:[["430 ppm",1],["280 ppm",0],["150 ppm",0],["600 ppm",0]],
+     fb:"Em 2025 o pico mensal passou de 430 ppm; antes da industrialização era ~280 ppm."},
+    {q:"O carbono das rochas calcárias volta ao ciclo lentamente pelo...",
+     o:[["Intemperismo químico",1],["Congelamento rápido",0],["Vento noturno",0],["Brilho solar",0]],
+     fb:"O intemperismo e o vulcanismo devolvem carbono das rochas ao ciclo ao longo de eras."},
+    {q:"Na fotossíntese, as plantas transformam CO₂ em...",
+     o:[["Glicose",1],["Oxigênio",0],["Nitrato",0],["Amônia",0]],
+     fb:"A fotossíntese converte CO₂ e água em glicose, estocando energia e carbono."},
+    {q:"Qual é uma das maiores fontes de emissão de carbono no Brasil?",
+     o:[["Queda de florestas",1],["Plantio de mudas",0],["Uso de bicicletas",0],["Coleta seletiva",0]],
+     fb:"A derrubada e queima de florestas responde por grande parte das emissões brasileiras."},
+    {q:"Que fração das emissões o sumidouro terrestre absorve por ano?",
+     o:[["Cerca de um terço",1],["Cerca de tudo",0],["Quase nada agora",0],["Todo o excesso",0]],
+     fb:"As terras absorvem ~29% e os oceanos ~26% das emissões humanas de CO₂."},
+    {q:"Comparado ao CO₂, o metano é um gás de efeito estufa que aquece...",
+     o:[["Muito mais",1],["Muito menos",0],["Igualzinho",0],["Quase zero",0]],
+     fb:"Por molécula, o CH₄ aquece muito mais que o CO₂ em escalas de décadas."}
+  ],
+  dificil: [
+    {q:"A produção primária bruta terrestre (GPP) fixa cerca de quanto carbono por ano?",
+     o:[["120 GtC",1],["12 GtC",0],["1.200 GtC",0],["5 GtC",0]],
+     fb:"A GPP global gira em torno de 120 GtC/ano; metade retorna via respiração autotrófica."},
+    {q:"Que 'bomba' oceânica leva carbono orgânico ao fundo do mar?",
+     o:[["Bomba biológica",1],["Bomba de soluto",0],["Bomba térmica",0],["Bomba salina",0]],
+     fb:"A bomba biológica exporta carbono via afundamento de partículas e organismos mortos."},
+    {q:"O equilíbrio carbonato-bicarbonato controla a capacidade do mar de...",
+     o:[["Tamponar o CO₂",1],["Produzir mais sal",0],["Gerar mais O₂",0],["Refletir a luz",0]],
+     fb:"O sistema carbonato tampona o pH e regula quanto CO₂ o oceano absorve."},
+    {q:"A queda da razão ¹³C/¹²C na atmosfera indica carbono...",
+     o:[["De origem fóssil",1],["De origem vulcânica",0],["De origem marinha",0],["De origem estelar",0]],
+     fb:"Plantas discriminam o ¹³C; a queda do δ¹³C atmosférico aponta carbono fóssil vegetal antigo."},
+    {q:"Qual reservatório tem o MAIOR tempo de residência do carbono?",
+     o:[["Rochas sedimentares",1],["Vegetação viva",0],["Atmosfera livre",0],["Solo superficial",0]],
+     fb:"O carbono em rochas carbonáticas pode permanecer por milhões de anos."},
+    {q:"O degelo do permafrost preocupa porque pode liberar...",
+     o:[["Metano e CO₂",1],["Enxofre e cloro",0],["Ozônio e argônio",0],["Hélio e neônio",0]],
+     fb:"O degelo expõe matéria orgânica antiga, liberando CH₄ e CO₂ — um feedback positivo."},
+    {q:"A fertilização por CO₂ tende, no curto prazo, a aumentar a...",
+     o:[["Fotossíntese vegetal",1],["Erosão do solo",0],["Salinidade marinha",0],["Radiação solar",0]],
+     fb:"Mais CO₂ pode elevar a fotossíntese, mas nutrientes e água limitam esse efeito."},
+    {q:"Em áreas alagadas, o metano é produzido principalmente por...",
+     o:[["Metanogênese anaeróbia",1],["Fotólise direta",0],["Oxidação aeróbia",0],["Calcificação biológica",0]],
+     fb:"Arqueas metanogênicas produzem CH₄ na decomposição sem oxigênio, comum no Pantanal."},
+    {q:"O fluxo bruto de CO₂ entre oceano e atmosfera é de cerca de...",
+     o:[["80 GtC/ano",1],["8 GtC/ano",0],["800 GtC/ano",0],["2 GtC/ano",0]],
+     fb:"Cerca de 80 GtC cruzam a interface mar-ar em cada sentido por ano, quase em equilíbrio."},
+    {q:"A diferença entre GPP e respiração autotrófica define a...",
+     o:[["Produção primária líquida",1],["Biomassa total morta",0],["Taxa de sedimentação",0],["Constante de Henry",0]],
+     fb:"NPP = GPP − respiração autotrófica; é o carbono disponível para crescimento e cadeias tróficas."},
+    {q:"O aumento do CO₂ reduz o pH oceânico num processo chamado...",
+     o:[["Acidificação oceânica",1],["Eutrofização costeira",0],["Estratificação térmica",0],["Ressurgência profunda",0]],
+     fb:"Desde 1750 o pH da superfície do mar caiu ~0,1 unidade, ficando ~30% mais ácido."},
+    {q:"Qual técnica captura CO₂ e o armazena em formações geológicas?",
+     o:[["Sequestro geológico",1],["Fissão controlada",0],["Eletrólise salina",0],["Destilação fracionada",0]],
+     fb:"O CCS injeta CO₂ capturado em reservatórios geológicos profundos e estáveis."}
+  ],
+  carbonauta: [
+    {q:"A 'airborne fraction' descreve a parcela das emissões que...",
+     o:[["Permanece na atmosfera",1],["Precipita nos oceanos",0],["Fixa-se nas rochas",0],["Escapa para o espaço",0]],
+     fb:"A airborne fraction (~44%) é a fração das emissões antrópicas que fica no ar após os sumidouros."},
+    {q:"A força do feedback carbono-clima é medida pelo parâmetro...",
+     o:[["Coeficiente gama (γ)",1],["Albedo planetário",0],["Forçante radiativa",0],["Gradiente térmico",0]],
+     fb:"γ (GtC por kelvin) quantifica quanto os sumidouros de carbono enfraquecem com o aquecimento."},
+    {q:"A solubilidade do CO₂ na água do mar é descrita pela...",
+     o:[["Lei de Henry",1],["Lei de Hess",0],["Lei de Fick",0],["Lei de Ohm",0]],
+     fb:"A Lei de Henry relaciona a pressão parcial de CO₂ e sua concentração dissolvida."},
+    {q:"Um fator de Revelle alto significa que o oceano absorve CO₂ de forma...",
+     o:[["Cada vez menor",1],["Cada vez maior",0],["De modo linear",0],["De modo infinito",0]],
+     fb:"Fator de Revelle alto = menor capacidade tampão: o mar absorve proporcionalmente menos CO₂."},
+    {q:"A discriminação da Rubisco em plantas C3 enriquece a biomassa em...",
+     o:[["Carbono-12 leve",1],["Carbono-14 raro",0],["Oxigênio-18 pesado",0],["Nitrogênio-15 estável",0]],
+     fb:"A Rubisco favorece o ¹²C, tornando a biomassa C3 isotopicamente leve (δ¹³C ≈ −27‰)."},
+    {q:"A retroalimentação do permafrost é classificada majoritariamente como...",
+     o:[["Positiva e irreversível",1],["Negativa e estabilizadora",0],["Neutra e cíclica",0],["Fraca e reversível",0]],
+     fb:"A liberação de carbono do permafrost amplifica o aquecimento e é tida como largamente irreversível em escala humana."},
+    {q:"A produção primária líquida do oceano é dominada por...",
+     o:[["Fitoplâncton fotossintético",1],["Corais construtores",0],["Bactérias quimiossintéticas",0],["Macroalgas costeiras",0]],
+     fb:"O fitoplâncton responde por cerca de metade da produção primária global, base da bomba biológica."},
+    {q:"O termo 'blue carbon' refere-se ao carbono estocado por...",
+     o:[["Ecossistemas costeiros",1],["Florestas boreais",0],["Turfeiras tropicais",0],["Pradarias temperadas",0]],
+     fb:"Blue carbon é o carbono de manguezais, marismas e pradarias marinhas — altíssima eficiência por hectare."},
+    {q:"A quantificação da NEE (troca líquida do ecossistema) usa a técnica de...",
+     o:[["Covariância turbulenta",1],["Cromatografia iônica",0],["Sensoriamento óptico",0],["Titulação ácido-base",0]],
+     fb:"A técnica de eddy covariance mede fluxos de CO₂ ecossistema-atmosfera em torres de fluxo."},
+    {q:"O potencial de aquecimento global do metano em 100 anos (GWP₁₀₀) é cerca de...",
+     o:[["28 vezes",1],["3 vezes",0],["300 vezes",0],["1 vez",0]],
+     fb:"O GWP₁₀₀ do CH₄ é ~28–30; em 20 anos (GWP₂₀) sobe para ~80, refletindo sua vida curta e forte forçante."},
+    {q:"O sumidouro líquido terrestre (NEP) é calculado como NPP menos...",
+     o:[["Respiração heterotrófica",1],["Fixação simbiótica",0],["Deposição atmosférica",0],["Absorção estomática",0]],
+     fb:"NEP ≈ NPP − respiração heterotrófica; distúrbios como o fogo reduzem ainda mais o balanço (NBP)."},
+    {q:"A alcalinidade total do oceano é essencial para calcular a...",
+     o:[["Especiação carbônica",1],["Salinidade prática",0],["Temperatura conservativa",0],["Densidade potencial",0]],
+     fb:"Com alcalinidade e CID/pCO₂ calcula-se a especiação (CO₂, HCO₃⁻, CO₃²⁻) do sistema carbonato marinho."},
+    {q:"O 'remaining carbon budget' (orçamento de carbono restante) estima...",
+     o:[["Emissões até 1,5 °C",1],["Reservas fósseis totais",0],["Carbono já sequestrado",0],["Fluxo bruto oceânico",0]],
+     fb:"É o CO₂ adicional que ainda podemos emitir mantendo ~50% de chance de limitar o aquecimento a 1,5 °C."}
+  ]
+};
+
+const LEVEL_LABEL = {basico:"Básico",intermediario:"Intermediário",dificil:"Difícil",carbonauta:"🛰️ Carbonauta"};
+const POINTS = {correct:100, streakBonus:20};
+
+/* ================= FIREBASE ================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyCbXi3UCVl8oLleBzGb6DqWSxbZmZU2yDQ",
+  authDomain: "jogos-ranking.firebaseapp.com",
+  databaseURL: "https://jogos-ranking-default-rtdb.firebaseio.com",
+  projectId: "jogos-ranking",
+  storageBucket: "jogos-ranking.firebasestorage.app",
+  messagingSenderId: "958784915420",
+  appId: "1:958784915420:web:4212d3ad278f02d600f119"
+};
+const GAME_ID = "2026-08-07-orbita-do-carbono";
+let db=null, fs=null;
+async function initFirebase(){
+  try{
+    const appMod = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+    fs = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    const app = appMod.initializeApp(firebaseConfig);
+    db = fs.getFirestore(app);
+    return true;
+  }catch(e){ console.warn("Firebase indisponível:",e); return false; }
+}
+
+/* ================= ESTADO ================= */
+let state = {level:"basico", order:[], idx:0, correct:0, points:0, streak:0, best:0, answered:false, startTs:0, elapsed:0};
+let timer=null;
+let lastResult=null;
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+/* ================= FLUXO DO JOGO ================= */
+function startLevel(lvl){
+  state.level = lvl;
+  state.order = shuffle(DATA[lvl].map((q,i)=>i));
+  state.idx=0; state.correct=0; state.points=0; state.streak=0; state.best=0; state.answered=false;
+  state.startTs = Date.now(); state.elapsed=0;
+  document.getElementById("hTempo").textContent="00:00";
+  document.getElementById("finalCard").classList.add("hidden");
+  document.getElementById("gameCard").classList.remove("hidden");
+  document.getElementById("hTotal").textContent = DATA[lvl].length;
+  startTimer();
+  renderQuestion();
+  loadRanking();
+}
+function startTimer(){
+  clearInterval(timer);
+  timer=setInterval(()=>{
+    state.elapsed = Math.floor((Date.now()-state.startTs)/1000);
+    document.getElementById("hTempo").textContent = `${String(Math.floor(state.elapsed/60)).padStart(2,"0")}:${String(state.elapsed%60).padStart(2,"0")}`;
+  },250);
+}
+function updateHUD(){
+  document.getElementById("hAcertos").textContent = state.correct;
+  document.getElementById("hPontos").textContent = state.points;
+  document.getElementById("hStreak").textContent = state.streak;
+}
+function renderQuestion(){
+  state.answered=false;
+  const qi = state.order[state.idx];
+  const item = DATA[state.level][qi];
+  const total = DATA[state.level].length;
+  document.getElementById("qnum").textContent = `Pergunta ${state.idx+1} de ${total}`;
+  document.getElementById("question").textContent = item.q;
+  document.getElementById("bar").style.width = `${((state.idx+1)/total)*100}%`;
+  updateHUD();
+  const fb = document.getElementById("feedback");
+  fb.className="feedback"; fb.innerHTML="";
+  document.getElementById("nextBtn").classList.add("hidden");
+
+  const opts = shuffle(item.o.map(o=>({t:o[0],c:o[1]})));
+  const box = document.getElementById("opts");
+  box.innerHTML="";
+  const letters=["A","B","C","D","E"];
+  opts.forEach((o,i)=>{
+    const b=document.createElement("button");
+    b.className="opt"; b.type="button";
+    b.innerHTML=`<span class="mk">${letters[i]}</span><span>${esc(o.t)}</span>`;
+    b.onclick=()=>answer(b,o.c,item.fb);
+    box.appendChild(b);
+  });
+}
+function answer(btn, isCorrect, fbText){
+  if(state.answered) return;
+  state.answered=true;
+  const buttons=[...document.querySelectorAll(".opt")];
+  buttons.forEach(b=>b.disabled=true);
+  const fb=document.getElementById("feedback");
+  if(isCorrect){
+    btn.classList.add("correct","pop");
+    state.correct++; state.streak++; state.best=Math.max(state.best,state.streak);
+    state.points += POINTS.correct + (state.streak-1)*POINTS.streakBonus;
+    fb.className="feedback show ok";
+    fb.innerHTML=`<span class="tag">✅ Correto!</span>${esc(fbText)}`;
+  }else{
+    btn.classList.add("wrong","shake");
+    state.streak=0;
+    buttons.forEach(b=>{
+      const label=b.querySelector("span:last-child").textContent;
+      const qi=state.order[state.idx];
+      const found=DATA[state.level][qi].o.find(o=>o[0]===label);
+      if(found && found[1]===1) b.classList.add("correct");
+    });
+    fb.className="feedback show no";
+    fb.innerHTML=`<span class="tag">❌ Quase!</span>${esc(fbText)}`;
+  }
+  updateHUD();
+  document.getElementById("nextBtn").classList.remove("hidden");
+}
+function nextQuestion(){
+  state.idx++;
+  if(state.idx >= DATA[state.level].length){ finish(); }
+  else { renderQuestion(); }
+}
+function finish(){
+  clearInterval(timer);
+  state.elapsed = Math.floor((Date.now()-state.startTs)/1000);
+  document.getElementById("bar").style.width="100%";
+  const total = DATA[state.level].length;
+  document.getElementById("gameCard").classList.add("hidden");
+  const fc=document.getElementById("finalCard");
+  fc.classList.remove("hidden");
+  document.getElementById("fScore").textContent = state.points;
+  document.getElementById("fResumo").textContent =
+    `${state.correct}/${total} acertos · maior sequência: ${state.best}🔥 · tempo: ${state.elapsed}s · nível ${LEVEL_LABEL[state.level]}`;
+  const pct = state.correct/total;
+  let medal="🌱 Continue explorando o ciclo!";
+  if(pct===1) medal="🏆 Perfeito! Carbono sob controle!";
+  else if(pct>=0.8) medal="🥇 Excelente domínio do ciclo!";
+  else if(pct>=0.6) medal="🥈 Muito bem, quase lá!";
+  else if(pct>=0.4) medal="🥉 Bom começo!";
+  document.getElementById("medal").textContent=medal;
+  document.getElementById("saveNote").textContent="";
+  lastResult={score:state.points, seconds:state.elapsed, correct:state.correct, total, level:state.level};
+}
+
+/* ================= RANKING (Firestore) ================= */
+let myLastName=null;
+async function saveScore(){
+  const name=(document.getElementById("nameInput").value||"").trim().slice(0,20) || "Anônimo";
+  const note=document.getElementById("saveNote");
+  if(!lastResult){return;}
+  if(!db){ note.textContent="⚠️ Ranking offline — jogo salvo só nesta sessão."; return; }
+  try{
+    const {collection,addDoc,serverTimestamp}=fs;
+    await addDoc(collection(db,"games",GAME_ID,"scores"),{
+      name, score:lastResult.score, seconds:lastResult.seconds,
+      correct:lastResult.correct, total:lastResult.total,
+      level:lastResult.level, ts:serverTimestamp()
+    });
+    note.textContent="✅ Pontuação salva no ranking global!";
+    myLastName=name;
+    loadRanking(lastResult.level);
+  }catch(e){
+    console.warn(e);
+    note.textContent="⚠️ Não foi possível salvar agora — verifique a conexão.";
+  }
+}
+async function loadRanking(lvl){
+  lvl = lvl || state.level;
+  document.getElementById("rankLvl").textContent = LEVEL_LABEL[lvl];
+  const body=document.getElementById("rankBody");
+  if(!db){ body.innerHTML='<div class="note">⚠️ Ranking indisponível offline. O jogo funciona normalmente!</div>'; return; }
+  try{
+    const {collection,query,orderBy,limit,getDocs}=fs;
+    const q=query(collection(db,"games",GAME_ID,"scores"),orderBy("score","desc"),limit(200));
+    const snap=await getDocs(q);
+    let rows=[];
+    snap.forEach(d=>{const v=d.data(); if(v.level===lvl) rows.push(v);});
+    rows.sort((a,b)=> (b.score-a.score) || (a.seconds-b.seconds));
+    rows=rows.slice(0,10);
+    if(!rows.length){ body.innerHTML='<div class="note">Ainda sem pontuações neste nível. Seja o primeiro! 🚀</div>'; return; }
+    let html='<table><thead><tr><th>#</th><th>Nome</th><th>Acertos</th><th style="text-align:right">Pontos · Tempo</th></tr></thead><tbody>';
+    rows.forEach((r,i)=>{
+      const me=(myLastName && r.name===myLastName)?' class="me"':'';
+      html+=`<tr${me}><td class="pos">${i+1}</td><td>${esc(r.name)}</td><td>${r.correct??"-"}/${r.total??"-"}</td><td class="sc">${r.score} · ${r.seconds??"-"}s</td></tr>`;
+    });
+    html+='</tbody></table>';
+    body.innerHTML=html;
+  }catch(e){
+    console.warn(e);
+    body.innerHTML='<div class="note">⚠️ Não foi possível carregar o ranking agora.</div>';
+  }
+}
+
+/* ================= EVENTOS ================= */
+document.getElementById("levels").addEventListener("click",e=>{
+  const btn=e.target.closest(".pill"); if(!btn) return;
+  document.querySelectorAll(".pill").forEach(p=>p.classList.remove("active"));
+  btn.classList.add("active");
+  startLevel(btn.dataset.lvl);
+});
+document.getElementById("nextBtn").onclick=nextQuestion;
+document.getElementById("saveBtn").onclick=saveScore;
+document.getElementById("againBtn").onclick=()=>startLevel(state.level);
+document.getElementById("nameInput").addEventListener("keydown",e=>{if(e.key==="Enter")saveScore();});
+
+/* ================= INICIALIZAÇÃO ================= */
+(async function(){
+  await initFirebase();
+  startLevel("basico");
+})();
+</script>
+</body>
+</html>
